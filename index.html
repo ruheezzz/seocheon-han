@@ -1,0 +1,844 @@
+<title>서천교육한마당</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Layout: sticky masthead with five-path footprint strip, tab bar, one working panel at a time. Each 길 owns a colour used on card headers, map squares and chips. */
+:root{
+  --bg:#F2F5F8; --surface:#FFFFFF; --fg:#16202B; --muted:#5A6672; --line:#DCE2E9; --accent:#0F5C8C; --accent-ink:#FFFFFF; --soft:#E8EEF4;
+  --ok:#17805A; --warn:#B5560C; --bad:#B3261E;
+  --c-s:#F2B90C; --i-s:#2A2100; --c-k:#2F5FC4; --i-k:#FFFFFF; --c-e:#17805A; --i-e:#FFFFFF;
+  --c-m:#F08A2A; --i-m:#2A1500; --c-t:#7A44A8; --i-t:#FFFFFF; --c-x:#6B7682; --i-x:#FFFFFF;
+  --f-display:'Jua','Noto Sans KR',system-ui,sans-serif; --f-body:'Noto Sans KR',system-ui,-apple-system,'Malgun Gothic',sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E141A; --surface:#17202A; --fg:#E8EDF2; --muted:#9AA6B2; --line:#2A3541; --accent:#6CB6E8; --accent-ink:#06202F; --soft:#1F2A35;
+  --ok:#45C58E; --warn:#F2A25C; --bad:#FF8A80;
+  --c-s:#F5C940; --i-s:#1D1700; --c-k:#7FA6FF; --i-k:#0B1633; --c-e:#45C58E; --i-e:#052A1A;
+  --c-m:#FFA25E; --i-m:#2A1500; --c-t:#BE92E8; --i-t:#200A38; --c-x:#9AA5B1; --i-x:#111820; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E141A; --surface:#17202A; --fg:#E8EDF2; --muted:#9AA6B2; --line:#2A3541; --accent:#6CB6E8; --accent-ink:#06202F; --soft:#1F2A35;
+  --ok:#45C58E; --warn:#F2A25C; --bad:#FF8A80;
+  --c-s:#F5C940; --i-s:#1D1700; --c-k:#7FA6FF; --i-k:#0B1633; --c-e:#45C58E; --i-e:#052A1A;
+  --c-m:#FFA25E; --i-m:#2A1500; --c-t:#BE92E8; --i-t:#200A38; --c-x:#9AA5B1; --i-x:#111820; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:15px;line-height:1.6;padding-inline:16px}
+*{box-sizing:border-box}
+.p-s{--pc:var(--c-s);--pi:var(--i-s)} .p-k{--pc:var(--c-k);--pi:var(--i-k)} .p-e{--pc:var(--c-e);--pi:var(--i-e)}
+.p-m{--pc:var(--c-m);--pi:var(--i-m)} .p-t{--pc:var(--c-t);--pi:var(--i-t)} .p-x{--pc:var(--c-x);--pi:var(--i-x)}
+.wrap{max-width:1080px;margin-inline:auto}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1,h2,h3{text-wrap:balance;margin:0}
+
+/* masthead */
+.mast{padding-block:28px 18px}
+.org{font-size:13px;color:var(--muted);letter-spacing:.04em}
+.title-row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 22px;margin-top:6px}
+h1{font-family:var(--f-display);font-weight:400;font-size:clamp(30px,6vw,52px);line-height:1.12}
+.slogan{font-family:var(--f-display);font-size:clamp(20px,3.4vw,28px);display:flex;gap:2px;align-items:baseline}
+.slogan b{font-weight:400;color:var(--fg)}
+.fp{display:flex;gap:5px;margin-top:14px}
+.fp i{width:34px;height:8px;border-radius:4px;background:var(--pc)}
+.facts{display:flex;flex-wrap:wrap;gap:6px 22px;margin:14px 0 0;padding:0;list-style:none;font-size:14px}
+.facts li{display:flex;gap:8px;align-items:baseline}
+.facts span{color:var(--muted);font-size:12px;letter-spacing:.05em}
+.dday{margin-left:auto;font-family:var(--f-display);font-size:22px;color:var(--accent)}
+.demo{margin-top:14px;padding:8px 12px;border:1px dashed var(--line);border-radius:8px;font-size:13px;color:var(--muted);background:var(--surface)}
+
+/* tabs */
+.tabbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-inline:-16px;padding-inline:16px}
+.tabs{display:flex;gap:4px;overflow-x:auto;max-width:1080px;margin-inline:auto;scrollbar-width:thin}
+.tab{flex:none;padding:12px 14px;border:0;background:none;cursor:pointer;color:var(--muted);font-weight:500;border-bottom:3px solid transparent;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent);font-weight:700}
+.panel{padding-block:22px 48px}
+.panel[hidden]{display:none}
+
+/* controls */
+.filters{display:grid;gap:14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.frow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.flabel{font-size:12px;color:var(--muted);letter-spacing:.05em;min-width:56px}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:14px}
+.chip .sw{width:10px;height:10px;border-radius:50%;background:var(--pc)}
+.chip[aria-pressed="true"]{background:var(--pc);color:var(--pi);border-color:var(--pc);font-weight:700}
+.chip[aria-pressed="true"] .sw{background:var(--pi)}
+.chip.plain[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+input[type=text],input[type=search],input[type=tel],input[type=number],select,textarea{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0;max-width:100%}
+input[type=search]{flex:1 1 220px}
+.count{font-size:14px;color:var(--muted);margin:18px 2px 10px}
+.count b{color:var(--fg)}
+
+/* booth cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.card-h{background:var(--pc);color:var(--pi);display:flex;justify-content:space-between;padding:7px 14px;font-weight:700;font-size:13px}
+.card-b{padding:14px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card h3{font-size:16px;line-height:1.4;font-weight:700}
+.loc{margin:0;font-size:13px;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:12px;padding:2px 8px;border-radius:6px;background:var(--soft);color:var(--fg)}
+.tag.rez{background:var(--accent);color:var(--accent-ink)}
+.card-a{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;padding-top:6px}
+.btn{border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:9px 16px;cursor:pointer;font-weight:700}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.ghost[aria-pressed="true"]{background:var(--soft);color:var(--fg);border-color:var(--line)}
+.btn.small{padding:5px 12px;font-size:13px}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.empty{padding:36px 16px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:12px}
+
+/* passport */
+.pass{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin-top:16px;padding:12px 16px;border-radius:12px;background:var(--surface);border:1px solid var(--line)}
+.pass strong{font-family:var(--f-display);font-weight:400;font-size:18px}
+.pdots{display:flex;gap:8px}
+.pdot{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.pdot i{width:20px;height:20px;border-radius:50%;border:2px solid var(--pc);display:grid;place-items:center;font-style:normal;font-size:12px;line-height:1}
+.pdot.on i{background:var(--pc);color:var(--pi)}
+.pdot.on{color:var(--fg)}
+
+/* map */
+.mapbox{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.mapbox svg{display:block;min-width:620px;width:100%;height:auto}
+.zone{fill:var(--surface);stroke:var(--line);stroke-width:1.5;cursor:pointer}
+.zone:hover{fill:var(--soft)}
+.zone.sel{stroke:var(--accent);stroke-width:3;fill:var(--soft)}
+.zt{fill:var(--fg);font-size:12px;font-weight:700;pointer-events:none}
+.zn{fill:var(--muted);font-size:11px;pointer-events:none}
+.mapnote{font-size:12px;fill:var(--muted)}
+.floor{margin:0 0 6px;font-family:var(--f-display);font-weight:400;font-size:20px}
+.zdetail{margin-top:16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.zdetail ul{list-style:none;margin:10px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 18px}
+.zdetail li{display:flex;gap:8px;align-items:baseline;min-width:0}
+.zdetail li .sq{flex:none;width:12px;height:12px;border-radius:3px;background:var(--pc);transform:translateY(1px)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:12px;font-size:13px}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;background:var(--pc)}
+
+/* guide */
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;min-width:0}
+.box h2{font-family:var(--f-display);font-weight:400;font-size:21px;margin-bottom:10px}
+.box p,.box li{font-size:14px}
+.box ul{margin:8px 0 0;padding-left:18px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;color:var(--muted);font-weight:500;letter-spacing:.04em;white-space:nowrap}
+td.t{white-space:nowrap;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;font-size:12px;padding:1px 8px;border-radius:6px;background:var(--soft);white-space:nowrap}
+.full{grid-column:1/-1}
+
+/* forms */
+.form{display:grid;gap:18px;max-width:820px}
+fieldset{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:16px 18px 18px;margin:0;min-width:0}
+legend{font-family:var(--f-display);font-size:19px;padding-inline:6px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+label.f{display:grid;gap:4px;font-size:13px;color:var(--muted)}
+label.f input,label.f select,label.f textarea{color:var(--fg);font-size:15px;width:100%}
+.radios{display:flex;flex-wrap:wrap;gap:8px 18px;padding-top:4px}
+.radios label{display:flex;gap:6px;align-items:center;color:var(--fg);font-size:15px}
+.rows{display:grid;gap:8px;margin-top:8px}
+.row{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 72px 72px 72px 36px;gap:8px;align-items:center}
+.row.g{grid-template-columns:minmax(0,1fr) 90px 90px minmax(0,1fr) 36px}
+.row .x{border:1px solid var(--line);background:none;border-radius:8px;height:38px;cursor:pointer;color:var(--muted)}
+.hint{font-size:13px;color:var(--muted);margin:6px 0 0}
+.errs{border:1px solid var(--bad);border-radius:12px;padding:12px 16px;color:var(--bad);background:var(--surface)}
+.errs ul{margin:6px 0 0;padding-left:18px}
+.errs button{background:none;border:0;color:inherit;text-decoration:underline;cursor:pointer;padding:0;text-align:left}
+.done{background:var(--surface);border:2px solid var(--ok);border-radius:12px;padding:20px}
+.done h2{font-family:var(--f-display);font-weight:400;font-size:24px;color:var(--ok)}
+.num{font-family:var(--f-display);font-size:30px;letter-spacing:.04em}
+.app{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;margin-top:14px}
+.app header{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;margin-bottom:8px}
+.app header strong{font-family:var(--f-display);font-weight:400;font-size:22px}
+.st{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--ok);color:var(--surface);font-weight:700}
+.st.off{background:var(--muted)}
+.cancelled td{text-decoration:line-through;color:var(--muted)}
+.confirm{display:inline-flex;gap:6px;align-items:center;flex-wrap:wrap}
+.inline{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.inline label.f{flex:1 1 180px}
+footer{border-top:1px solid var(--line);padding-block:20px 32px;font-size:13px;color:var(--muted)}
+@media (max-width:640px){
+  .row{grid-template-columns:1fr 1fr;}
+  .row .x{width:100%}
+  .row.g{grid-template-columns:1fr 1fr}
+  .dday{margin-left:0}
+}
+@media (prefers-reduced-motion:no-preference){.card{transition:transform .15s}.card:hover{transform:translateY(-2px)}}
+</style>
+
+<div class="wrap">
+<header class="mast">
+  <div class="org">충청남도서천교육지원청</div>
+  <div class="title-row">
+    <h1>2026 함께 성장,<br>서천교육한마당</h1>
+    <div class="slogan" aria-label="오길 잘했어"><b>오(5)길잘했어!</b></div>
+    <div class="dday" id="dday"></div>
+  </div>
+  <div class="fp" aria-hidden="true"><i class="p-s"></i><i class="p-k"></i><i class="p-e"></i><i class="p-m"></i><i class="p-t"></i></div>
+  <ul class="facts">
+    <li><span>일시</span>2026. 11. 4.(수) 10:00~16:30</li>
+    <li><span>장소</span>서천미래교육지원센터(미래봄) 1·2층, 중정, 야외</li>
+    <li><span>부스</span>74개 · 다섯 길</li>
+  </ul>
+  <div class="pass" id="pass" aria-live="polite"></div>
+  <p class="demo">운영 계획(안) 10.6. 기준으로 만든 시안 화면입니다. 신청 내용은 서버에 저장되지 않고, 새로고침하면 사라집니다. 회차별 정원과 잔여 인원은 예시 값입니다.</p>
+</header>
+</div>
+
+<div class="tabbar"><div class="tabs" role="tablist" id="tabs"></div></div>
+
+<main class="wrap">
+  <section class="panel" id="p-find" role="tabpanel"></section>
+  <section class="panel" id="p-map" role="tabpanel" hidden></section>
+  <section class="panel" id="p-guide" role="tabpanel" hidden></section>
+  <section class="panel" id="p-lookup" role="tabpanel" hidden></section>
+  <section class="panel" id="p-apply" role="tabpanel" hidden></section>
+</main>
+<div class="wrap"><footer>충청남도서천교육지원청 · 2026 함께 성장, 서천교육한마당 운영 계획(안) 기준. 부스 수와 운영 시간은 운영 여건에 따라 변경될 수 있습니다.</footer></div>
+
+<script>
+(function(){
+'use strict';
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+function h(tag,attrs,...kids){
+  const e=document.createElement(tag);
+  for(const k in (attrs||{})){
+    const v=attrs[k]; if(v==null||v===false)continue;
+    if(k==='class')e.className=v;
+    else if(k.slice(0,2)==='on')e.addEventListener(k.slice(2),v);
+    else if(k==='value'||k==='checked'||k==='disabled'||k==='selected')e[k]=v;
+    else e.setAttribute(k,v===true?'':v);
+  }
+  for(const c of kids.flat(Infinity)){ if(c==null||c===false)continue; e.append(c.nodeType?c:document.createTextNode(String(c))); }
+  return e;
+}
+const clear=n=>{while(n.firstChild)n.removeChild(n.firstChild)};
+
+/* ---------- data ---------- */
+const PATHS={
+  s:{n:'성장하길',d:'교육 성과 공유·수업나눔'},
+  k:{n:'꿈키우길',d:'진로·미래역량'},
+  e:{n:'지속하길',d:'생태·환경·건강'},
+  m:{n:'마주하길',d:'존중·이해·안전'},
+  t:{n:'함께하길',d:'마을·지역 연계'},
+  x:{n:'이벤트',d:'먹거리 이벤트'}
+};
+const FIVE=['s','k','e','m','t'];
+
+const Z={
+  out_n:{l:'야외 북쪽·주출입구',s:'야외 북쪽·주출입구',f:1,x:110,y:8,w:300,h:34},
+  ctr:{l:'교원연수실',s:'교원연수실',f:1,x:8,y:52,w:92,h:100},
+  ai:{l:'AI교육실',s:'AI교육실',f:1,x:8,y:158,w:92,h:56},
+  tidal:{l:'갯벌체험관',s:'갯벌체험관',f:1,x:8,y:220,w:92,h:56},
+  art:{l:'예술활동실',s:'예술활동실',f:1,x:110,y:52,w:150,h:66},
+  sci:{l:'과학실험실',s:'과학실험실',f:1,x:300,y:52,w:100,h:66},
+  act:{l:'미래활동실',s:'미래활동실',f:1,x:430,y:52,w:222,h:150},
+  play:{l:'상상놀이터',s:'상상놀이터',f:1,x:110,y:126,w:84,h:70},
+  court:{l:'중정',s:'중정',f:1,x:204,y:126,w:206,h:120},
+  cafe:{l:'북카페',s:'북카페',f:1,x:204,y:258,w:190,h:52},
+  lobby:{l:'홀(로비)',s:'홀(로비)',f:1,x:430,y:212,w:222,h:98},
+  out_f:{l:'야외 건물 앞',s:'야외 건물 앞(마을 맛거리·생태 건강 거리·이벤트)',f:1,x:8,y:322,w:644,h:50},
+  cod2:{l:'코딩사물인터넷실',s:'코딩·IoT실',f:2,x:8,y:10,w:110,h:60},
+  edu2:{l:'미래교육실',s:'미래교육실',f:2,x:8,y:80,w:150,h:70},
+  mk2:{l:'상상이룸공작실',s:'상상이룸공작실',f:2,x:8,y:160,w:130,h:50},
+  sp1:{l:'특별체험실1',s:'특별체험실1',f:2,x:400,y:10,w:150,h:60},
+  hall2:{l:'2층 복도(동쪽)',s:'복도',f:2,x:580,y:10,w:64,h:150},
+  math2:{l:'수학체험실',s:'수학체험실',f:2,x:200,y:160,w:380,h:50}
+};
+for(const k in Z){Z[k].k=k; Z[k].label=(Z[k].f===2?'2층 ':'1층 ')+Z[k].l;}
+Z.out_n.label='야외 북쪽·주출입구'; Z.out_f.label='야외 건물 앞';
+
+// [no, name, path, zone, when]  when: 12=1·2부, 1=1부, 3=3부 교원, or a lecture time
+const B=[
+[1,'(마산초) 우리 마을의 생태 속으로 에코다이브','s','lobby','12'],
+[2,'(한산초,중) 365 온종일 학교, 한산 글로벌 영어학교','s','lobby','12'],
+[3,'(기산초) 꿈과 끼에 날개를 달아주는 배움터','s','lobby','12'],
+[4,'(화양초) 생태 전환을 실천하며 미래를 발견하다!','s','lobby','12'],
+[5,'(서면초) 새로운 세상을 향한 AI SW 융합교육의 메카','s','lobby','12'],
+[6,'시드니를 콕! 키캡 속에 쏙!','s','lobby','12'],
+[7,'구경하고, 찍고, 소통하라! 서천중 6대 교과 스마트 팝업 갤러리','s','cafe','12'],
+[8,'학교혁신 본보기학교','s','cafe','12'],
+[9,'놀고, 생각하고, 배우는 수업 나눔','s','edu2','3'],
+[10,'저학년 놀이중심 수업 / 질문 중심 수업 디자인과 나눔','s','cod2','3'],
+[11,'생각을 깨우는 교실, 중·고 학생참여형 수업 디자인과 나눔','s','sci','3'],
+[12,'개념기반탐구를 중심으로 한 저학년 문해력 수업 / 학생과 책을 잇는 질문, 문해력으로 채우는 교실','s','ai','3'],
+[13,'공동교육과정 사례나눔','s','ctr','3'],
+[14,'숨겨진 나의 진짜 재능을 찾아라! 드림캐처 탐험대','k','court','12'],
+[15,'신비한 마법의 카드! 운명의 진로 타로 상담소','k','court','12'],
+[16,'진로 체험 놀이터','k','court','12'],
+[17,'미래의 나를 찾아라! 진로 탐색 여행','k','court','12'],
+[18,'뚝딱뚝딱 수학 공작소: 내 손으로 완성하는 매스(Math) 매직','k','act','12'],
+[19,'씽씽 달려라! 마리오카트 어드벤처','k','out_n','12'],
+[20,'로봇이 말아주는 마법 음료','k','act','12'],
+[21,'인간 vs 인공지능! 세기의 오목 대결','k','act','12'],
+[22,'사람이야 로봇이야 (휴머노이드 로봇)','k','act','12'],
+[23,'코딩 블록 뚝딱! 우리가 짓는 그린 스마트 스쿨','k','act','12'],
+[24,'AI 화가와 함께! 나만의 특별한 뱃지 팩토리','k','act','12'],
+[25,'발끝으로 톡톡! 땀방울 맺히는 미래 융합 놀이터','k','act','12'],
+[26,'목소리로 돌리는 빙글빙글 행운 테스트','k','act','12'],
+[27,'배틀로봇 대결 체험','k','act','12'],
+[28,'내가 바로 드론 마스터! 씽씽 날아오르는 스카이킥','k','hall2','12'],
+[29,'에듀픽 배틀그라운드! 상상력 최강자를 가려라','k','play','12'],
+[30,'머릿속 아이디어가 현실로! \'상상이룸\' 메이커스페이스','k','mk2','12'],
+[31,'좌뇌우뇌 풀가동! 천재들의 수학 퀴즈 챔피언십','k','math2','12'],
+[32,'조물조물 짝짝! 창의력 쑥쑥 자라는 블록 파티','k','sci','12'],
+[33,'(뜰앞에지음) 태양 관측 탐험대','k','art','12'],
+[34,'(갯벌도예체험장) 빙글빙글! 나만의 도자기 만들기','e','out_f','12'],
+[35,'(이랑이랑) 초록동행! 가족 생태놀이터','e','ai','12'],
+[36,'(벽오리농장) 꼬꼬댁, 닭과 달걀 이야기','e','out_f','12'],
+[37,'(대하농원) 향기 가득 아로마 플랜테라피','e','out_f','12'],
+[38,'(아리랜드) 100년 동백숲을 만나다','e','out_f','12'],
+[39,'꼬마 생태학자들의 갯벌학교','e','court','12'],
+[40,'으랏차차! 파워 뿜뿜 서천 역도왕 챌린지','e','court','1'],
+[41,'발로 하는 배구, 공중 발레의 정석! 세팍타크로 챌린지','e','court','1'],
+[42,'스마트 건강 충전소: 오늘부터 나는 \'노담\' 히어로!','e','out_f','12'],
+[43,'지구 온도 1.5도를 지켜라! 두뇌 풀가동 환경 방탈출 챌린지','e','sp1','12'],
+[44,'인생수업 한마당','e','tidal','12'],
+[45,'(생태교육) 명사초청 강연 - 동물의 행동에서 찾은 공존의 지혜','e','ctr','11:00'],
+[46,'(생태교육) 명사초청 강연 - 생태전환교육, 지구와 함께 살아가는 방법','e','ctr','14:00'],
+[47,'존중 한 잔, 배려 두 스푼! 행복 트럭','m','out_n','12'],
+[48,'찰칵! 오늘이 바로 내 인생 레전드 샷','m','act','12'],
+[49,'내 마음의 충전소, Wee(위)로 한 그루','m','court','12'],
+[50,'도로 위의 히어로는 나! 퍼펙트 교통안전 마스터 챌린지','m','out_n','1'],
+[51,'(장애이해) \'점\'찍고 놀\'자\' 점자 톡톡!','m','court','12'],
+[52,'(장애공감) 다름을 CODE하다, 편견 OFF! 공감 ON!','m','court','12'],
+[53,'놀이로 만나는 다양한 문화','m','court','12'],
+[54,'학맞통 조각의 발견','m','court','12'],
+[55,'(미래봄, 페이스 페인팅) 내 얼굴에 미래를 그려봄','m','court','12'],
+[56,'(유치원) 놀이가 배움이 되는 놀이터!','m','court','12'],
+[57,'서천도서관과 함께하는 작가와의 만남','m','edu2','12'],
+[58,'(농촌유학) 우리 가족의 두 번째 고향, 서천!','t','out_f','12'],
+[59,'(별꽃농장) 향긋한 맥문동 커피공방','t','out_f','12'],
+[60,'(해가마을) 동백꽃 떡방앗간','t','out_f','12'],
+[61,'(안제이가든) 나만의 홍차&스콘 공방','t','out_f','12'],
+[62,'(몽리향) 달콤쫀득 맥문동 버터떡 만들기','t','out_f','12'],
+[63,'(아이마을) 모시향 가득! 한산모시 경단 만들기','t','out_f','12'],
+[64,'(흥림다원) 말랑말랑, 인절미 만들기','t','out_f','12'],
+[65,'(가나안농원) 달콤한 오디 디저트 만들기','t','out_f','12'],
+[66,'(슬로우스테이서면) 포도 한송이의 특별한 변신','t','out_f','12'],
+[67,'학교와 마을 사이, 함께 잇고 함께 그리다','t','lobby','12'],
+[68,'학교 밖에서도 이어지는 돌봄, 서천 마을학교','t','lobby','12'],
+[69,'서천을 배우다, 우리 마을 자원지도','t','lobby','12'],
+[70,'우리동네 소문난 반짝반짝 팝업 미술관','t','lobby','12'],
+[71,'내가 바로 우리동네 예술가! 상상력 톡톡 아트 클래스','t','lobby','12'],
+[72,'책장 사이 취향 한 스푼','t','court','12'],
+[73,'달콤 사르르! 솜사탕 팩토리','x','out_f','12'],
+[74,'매직 팝콘 팩토리','x','out_f','12']
+].map(a=>({no:a[0],name:a[1],p:a[2],z:a[3],w:a[4]}));
+
+const whenLabel=w=>w==='12'?'1·2부':w==='1'?'1부만':w==='3'?'3부 교원 수업나눔 15:00':w+' 강연';
+function inPart(b,p){
+  if(p==='all')return true;
+  if(p==='3')return b.w==='3';
+  if(p==='1')return b.w==='12'||b.w==='1'||b.w==='11:00';
+  return b.w==='12'||b.w==='14:00';
+}
+
+// reservable programs
+const PROGS=[
+  {id:'p28',booth:28,name:'드론 스카이킥',kind:'round',cap:10},
+  {id:'p30',booth:30,name:'상상이룸 메이커스페이스',kind:'round',cap:20},
+  {id:'p31',booth:31,name:'수학 퀴즈 챔피언십',kind:'round',cap:30},
+  {id:'p23',booth:23,name:'코딩 블록 뚝딱! 그린 스마트 스쿨',kind:'round',cap:12},
+  {id:'p25',booth:25,name:'플로어픽 미래 융합 놀이터',kind:'round',cap:12},
+  {id:'p19',booth:19,name:'마리오카트 어드벤처',kind:'round',cap:16},
+  {id:'p33',booth:33,name:'태양 관측 탐험대',kind:'round',cap:20},
+  {id:'p35',booth:35,name:'초록동행! 가족 생태놀이터',kind:'round',cap:20},
+  {id:'p44',booth:44,name:'인생수업 한마당',kind:'round',cap:30},
+  {id:'p57a',booth:57,name:'작가와의 만남 · 동화작가 조혜란',kind:'lecture',part:1,time:'10:00',end:'11:00',cap:60},
+  {id:'p57b',booth:57,name:'작가와의 만남 · AI 작가 이시한',kind:'lecture',part:2,time:'13:00',end:'14:00',cap:60},
+  {id:'p45',booth:45,name:'명사초청 생태 강연 · 장이권 교수',kind:'lecture',part:1,time:'11:00',end:'11:50',cap:80},
+  {id:'p46',booth:46,name:'명사초청 생태 강연 · 이재영 교수',kind:'lecture',part:2,time:'14:00',end:'14:50',cap:80}
+];
+const mm=t=>{const[a,b]=t.split(':').map(Number);return a*60+b};
+const fm=n=>String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');
+const ROUND_TIMES={1:['10:00','10:30','11:00','11:30'],2:['13:00','13:30','14:00','14:30']};
+const SESS=[];
+function hashN(s){let x=7;for(const c of s)x=(x*31+c.charCodeAt(0))>>>0;return x}
+for(const p of PROGS){
+  const list=p.kind==='lecture'?[{part:p.part,time:p.time,end:p.end}]
+    :[1,2].flatMap(pt=>ROUND_TIMES[pt].map(t=>({part:pt,time:t,end:fm(mm(t)+25)})));
+  for(const s of list){
+    const id=p.id+'@'+s.time, hv=hashN(id);
+    let base=Math.floor(p.cap*((hv%72)/100));
+    if(hv%9===0)base=p.cap;
+    SESS.push({id,pid:p.id,part:s.part,time:s.time,end:s.end,cap:p.cap,base});
+  }
+}
+const progById=id=>PROGS.find(p=>p.id===id);
+const sessById=id=>SESS.find(s=>s.id===id);
+const SCHOOLS={
+ '1':['비인초','서면초','서도초','비인중','서면중'],
+ '2':['시초초','부내초','판교중'],
+ '3':['서천초','오성초','서천중','서천여중','서림여중'],
+ '4':['장항초','장항중앙초','송림초','송석초','마동초','장항중','동강중'],
+ '5':['한산초','기산초','마산초','화양초','한산중']
+};
+const REGIONS={
+ '1':{route:'서면 → 비인 → 종천',area:'서면, 비인면',min:'10~20분'},
+ '2':{route:'판교 → 시초 → 종천',area:'판교면, 시초면, 문산면',min:'10~20분'},
+ '3':{route:'서천읍 → 종천',area:'서천읍',min:'10~15분'},
+ '4':{route:'장항 → 마서 → 서천읍 → 종천',area:'장항읍, 마서면',min:'25~30분'},
+ '5':{route:'한산 → 기산 → 서천읍 / 화양 → 서천읍 → 종천',area:'한산면, 기산면, 마산면, 화양면',min:'25~35분'}
+};
+
+/* ---------- state ---------- */
+const visited=new Set();
+const F={q:'',paths:new Set(),part:'all',zone:'',rez:false};
+const apps=[
+ {no:'SC-0001',sample:true,school:'예시초등학교',teacher:'김서천',phone:'010-0000-1234',part:'1',
+  grades:[{g:'초3',n:24,t:2,memo:''},{g:'초4',n:22,t:2,memo:''}],
+  transport:{method:'joint',region:'3',n:50},
+  rez:[{sid:'p31@10:30',cls:'3학년 1반',n:24,off:false},{sid:'p45@11:00',cls:'4학년 전체',n:22,off:false}],
+  special:{note:'',lift:0},off:false}
+];
+
+/* ---------- common ---------- */
+function usedOf(sid){
+  let n=0;
+  for(const a of apps)for(const r of a.rez)if(r.sid===sid&&!r.off)n+=r.n;
+  return n;
+}
+const remain=s=>Math.max(0,s.cap-s.base-usedOf(s.id));
+const sessLabel=s=>s.part+'부 '+s.time+'–'+s.end;
+
+/* ---------- tabs ---------- */
+const TABS=[['find','체험 찾기'],['map','부스 지도'],['guide','일정·안내'],['lookup','예약 조회·취소'],['apply','담임교사 신청']];
+let curTab='find';
+function showTab(id,focus){
+  if(!TABS.some(t=>t[0]===id))id='find';
+  curTab=id;
+  $$('.tab').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.t===id)));
+  TABS.forEach(t=>{$('#p-'+t[0]).hidden=t[0]!==id});
+  try{history.replaceState(null,'','#'+id)}catch(e){}
+  if(focus)window.scrollTo({top:0,behavior:'auto'});
+  if(id==='map')drawMap();
+}
+function buildTabs(){
+  const box=$('#tabs');
+  TABS.forEach(t=>box.append(h('button',{class:'tab',role:'tab','data-t':t[0],'aria-selected':'false',onclick:()=>showTab(t[0],true)},t[1])));
+}
+
+/* ---------- header ---------- */
+function dday(){
+  const ev=new Date(2026,10,4), now=new Date(); now.setHours(0,0,0,0);
+  const d=Math.round((ev-now)/86400000);
+  $('#dday').textContent=d>0?'D-'+d:d===0?'오늘 개최':'행사 종료';
+}
+function renderPass(){
+  const box=$('#pass'); clear(box);
+  const got=FIVE.filter(p=>B.some(b=>b.p===p&&visited.has(b.no)));
+  box.append(h('strong',null,'나의 발자국 '+got.length+'/5길'),
+    h('div',{class:'pdots'},FIVE.map(p=>h('span',{class:'pdot p-'+p+(got.includes(p)?' on':'')},h('i',null,got.includes(p)?'✓':''),PATHS[p].n))),
+    h('span',{class:'hint',style:'margin:0'},got.length===5?'다섯 길을 모두 걸었어요. 기념품을 받으러 운영데스크로 가요.':'부스 카드에서 \'발자국 찍기\'를 눌러 연습해 보세요. 현장에서는 길별 뱃지를 찍어 줍니다.'));
+}
+
+/* ---------- find ---------- */
+function buildFind(){
+  const root=$('#p-find'); clear(root);
+  const search=h('input',{type:'search',id:'q',placeholder:'부스 이름이나 학교 이름으로 찾기','aria-label':'부스 검색',oninput:e=>{F.q=e.target.value.trim();renderBooths()}});
+  const pathRow=h('div',{class:'frow'},h('span',{class:'flabel'},'길'),
+    FIVE.concat('x').map(p=>h('button',{class:'chip p-'+p,'aria-pressed':'false',onclick:e=>{
+      F.paths.has(p)?F.paths.delete(p):F.paths.add(p);
+      e.currentTarget.setAttribute('aria-pressed',String(F.paths.has(p)));renderBooths()}},h('i',{class:'sw'}),PATHS[p].n)));
+  const partRow=h('div',{class:'frow'},h('span',{class:'flabel'},'시간대'),
+    [['all','전체'],['1','1부 10:00 유·초'],['2','2부 13:00 중·학부모'],['3','3부 15:00 교원']].map(a=>h('button',{class:'chip plain','data-part':a[0],'aria-pressed':String(F.part===a[0]),onclick:e=>{
+      F.part=a[0];$$('[data-part]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.part===F.part)));renderBooths()}},a[1])));
+  const zsel=h('select',{id:'zsel','aria-label':'장소',onchange:e=>{F.zone=e.target.value;renderBooths()}},
+    h('option',{value:''},'모든 장소'),
+    Object.values(Z).map(z=>h('option',{value:z.k},z.label)));
+  const rez=h('label',{class:'chip plain',style:'cursor:pointer'},h('input',{type:'checkbox',id:'rezonly',onchange:e=>{F.rez=e.target.checked;renderBooths()},style:'accent-color:var(--accent)'}),'예약이 필요한 부스만');
+  root.append(
+    h('div',{class:'filters'},h('div',{class:'frow'},search),pathRow,partRow,h('div',{class:'frow'},h('span',{class:'flabel'},'장소'),zsel,rez)),
+    h('p',{class:'count',id:'count','aria-live':'polite'}),
+    h('div',{class:'grid',id:'booths'}));
+  renderBooths();
+}
+function renderBooths(){
+  const box=$('#booths'); clear(box);
+  const q=F.q.toLowerCase();
+  const list=B.filter(b=>
+    (!F.paths.size||F.paths.has(b.p))&&inPart(b,F.part)&&(!F.zone||b.z===F.zone)&&
+    (!F.rez||PROGS.some(p=>p.booth===b.no))&&
+    (!q||(b.name+' '+Z[b.z].label+' '+PATHS[b.p].n).toLowerCase().includes(q)));
+  $('#count').replaceChildren('조건에 맞는 부스 ',h('b',null,list.length+'개'),' / 전체 74개');
+  if(!list.length){
+    box.style.display='block';
+    box.append(h('div',{class:'empty'},h('p',null,'조건에 맞는 부스가 없어요.'),h('button',{class:'btn ghost small',onclick:resetFilters},'필터 모두 지우기')));
+    return;
+  }
+  box.style.display='';
+  list.forEach(b=>box.append(card(b)));
+}
+function resetFilters(){F.q='';F.paths.clear();F.part='all';F.zone='';F.rez=false;buildFind()}
+function card(b){
+  const progs=PROGS.filter(x=>x.booth===b.no);
+  const btn=h('button',{class:'btn ghost small','aria-pressed':String(visited.has(b.no)),onclick:e=>{
+    visited.has(b.no)?visited.delete(b.no):visited.add(b.no);
+    e.currentTarget.setAttribute('aria-pressed',String(visited.has(b.no)));
+    e.currentTarget.textContent=visited.has(b.no)?'✓ 발자국 찍음':'발자국 찍기';
+    renderPass();}},visited.has(b.no)?'✓ 발자국 찍음':'발자국 찍기');
+  return h('article',{class:'card p-'+b.p},
+    h('header',{class:'card-h'},h('span',null,PATHS[b.p].n),h('span',null,'No.'+b.no)),
+    h('div',{class:'card-b'},
+      h('h3',null,b.name),
+      h('p',{class:'loc'},Z[b.z].label),
+      h('div',{class:'tags'},h('span',{class:'tag'},whenLabel(b.w)),
+        progs.length?h('span',{class:'tag rez'},progs[0].kind==='lecture'?'사전 신청':'회차 예약'):null),
+      h('div',{class:'card-a'},
+        progs.length?h('button',{class:'btn small',onclick:()=>startReserve(progs[0].id)},'예약하기'):null,
+        btn)));
+}
+
+/* ---------- map ---------- */
+let zsel='court';
+const NS='http://www.w3.org/2000/svg';
+function se(tag,attrs,txt){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(txt!=null)e.textContent=txt;return e}
+function drawFloor(f){
+  const H=f===1?382:222;
+  const svg=se('svg',{viewBox:'0 0 660 '+H,role:'group','aria-label':f+'층 부스 배치'});
+  Object.values(Z).filter(z=>z.f===f).forEach(z=>{
+    const bs=B.filter(b=>b.z===z.k);
+    const g=se('g',{});
+    const r=se('rect',{x:z.x,y:z.y,width:z.w,height:z.h,rx:6,class:'zone'+(zsel===z.k?' sel':''),tabindex:0,role:'button','aria-label':z.label+' 부스 '+bs.length+'개'});
+    const pick=()=>{zsel=z.k;drawMap()};
+    r.addEventListener('click',pick);
+    r.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick()}});
+    g.append(r,se('text',{x:z.x+8,y:z.y+16,class:'zt'},z.s));
+    if(z.w>=90)g.append(se('text',{x:z.x+z.w-8,y:z.y+16,'text-anchor':'end',class:'zn'},bs.length?bs.length:''));
+    const cols=Math.max(1,Math.floor((z.w-16)/14));
+    bs.forEach((b,i)=>{
+      const sq=se('rect',{x:z.x+8+(i%cols)*14,y:z.y+24+Math.floor(i/cols)*14,width:11,height:11,rx:2.5,class:'p-'+b.p,style:'fill:var(--pc);pointer-events:none'});
+      sq.append(se('title',{},b.no+' '+b.name));
+      g.append(sq);
+    });
+    svg.append(g);
+  });
+  return svg;
+}
+function drawMap(){
+  const root=$('#p-map'); clear(root);
+  root.append(
+    h('div',{class:'legend'},FIVE.concat('x').map(p=>h('span',{class:'p-'+p},h('i'),PATHS[p].n)),h('span',{style:'color:var(--muted)'},'네모 하나가 부스 하나예요. 구역을 눌러 보세요.')),
+    h('h2',{class:'floor'},'1층 · 중정 · 야외'),
+    h('div',{class:'mapbox'},drawFloor(1)),
+    h('h2',{class:'floor',style:'margin-top:18px'},'2층 (예약 회차로 운영)'),
+    h('div',{class:'mapbox'},drawFloor(2)));
+  const z=Z[zsel], bs=B.filter(b=>b.z===zsel);
+  root.append(h('div',{class:'zdetail','aria-live':'polite'},
+    h('h2',{style:'font-size:18px'},z.label+' · 부스 '+bs.length+'개'),
+    h('ul',null,bs.map(b=>h('li',{class:'p-'+b.p},h('i',{class:'sq'}),h('span',null,b.no+'. '+b.name,' ',h('span',{class:'tag'},whenLabel(b.w))))))));
+}
+
+/* ---------- guide ---------- */
+function buildGuide(){
+  const root=$('#p-guide'); clear(root);
+  const sched=[
+   ['09:40~10:00','참가자 등록, 발자국 배부(로비)','1부 참가교'],
+   ['10:00~10:10','개회식','소수 인원'],
+   ['10:00~12:00','1부 다섯 길 체험 (부스 운영 10:00~11:50)','유치원·초등학생'],
+   ['10:00~11:00','작가와의 만남 · 동화작가 조혜란 (2층 미래교육실)','초등학생'],
+   ['11:00~11:50','명사초청 생태 강연 · 장이권 교수 (교원연수실)','초등학생·교원'],
+   ['12:00~13:00','1부 정리, 학교 복귀 / 2부 준비','운영진'],
+   ['13:00~15:00','2부 다섯 길 체험 (부스 운영 13:00~14:50)','중학생·학부모·지역주민'],
+   ['13:00~14:00','작가와의 만남 · AI 작가 이시한 (2층 미래교육실)','중학생·학부모'],
+   ['14:00~14:50','명사초청 생태 강연 · 이재영 교수 (교원연수실)','중학생·학부모·교원'],
+   ['15:00~16:30','3부 교원 수업나눔·협의 (5개 실)','교원']
+  ];
+  root.append(h('div',{class:'cols'},
+    h('section',{class:'box full'},h('h2',null,'하루 일정'),
+      h('div',{class:'tablewrap'},h('table',null,h('thead',null,h('tr',null,['시간','내용','대상'].map(x=>h('th',null,x)))),
+        h('tbody',null,sched.map(r=>h('tr',null,h('td',{class:'t'},r[0]),h('td',null,r[1]),h('td',null,h('span',{class:'pill'},r[2]))))))),
+      h('p',{class:'hint'},'소통마당 시간은 강사와 협의 후 확정됩니다.')),
+    h('section',{class:'box'},h('h2',null,'다섯 길과 발자국'),
+      h('ul',{style:'list-style:none;padding:0;display:grid;gap:8px'},FIVE.map(p=>h('li',{class:'p-'+p,style:'display:flex;gap:10px;align-items:baseline'},
+        h('span',{class:'pill',style:'background:var(--pc);color:var(--pi);font-weight:700;min-width:76px;text-align:center'},PATHS[p].n),PATHS[p].d))),
+      h('p',null,'입구에서 받은 \'오길잘했어 발자국\'에 부스 체험 후 길별 뱃지를 찍어 줍니다. 다섯 길을 모두 걸은 학생에게는 기념품, 학부모와 지역주민에게는 종이백을 드립니다.')),
+    h('section',{class:'box'},h('h2',null,'예약 방법'),
+      h('ul',null,
+        h('li',null,'1층 부스는 예약 없이 자유롭게 둘러볼 수 있어요.'),
+        h('li',null,'2층 실과 강연, 일부 부스는 30분 단위 회차(25분 체험, 5분 정리)로 운영해요. 1부, 2부 각각 4회차예요.'),
+        h('li',null,'학교·학급 단위로 \'담임교사 신청\'에서 한 번에 신청해요. 회차에 남은 자리는 현장에서도 접수해요.'),
+        h('li',null,'휴대폰이 없어도 현장 운영데스크에서 안내받을 수 있어요.'))),
+    h('section',{class:'box full'},h('h2',null,'학생 수송 (안)'),
+      h('div',{class:'tablewrap'},h('table',null,h('thead',null,h('tr',null,['권역','운행 방향','읍·면','학교','예상 시간'].map(x=>h('th',null,x)))),
+        h('tbody',null,Object.keys(REGIONS).map(k=>h('tr',null,h('td',null,k+'권역'),h('td',null,REGIONS[k].route),h('td',null,REGIONS[k].area),h('td',null,SCHOOLS[k].join(', ')),h('td',{class:'t'},REGIONS[k].min)))))),
+      h('ul',null,
+        h('li',null,'1부(유·초): 학교 출발 09:10~09:30, 미래봄 도착 09:40~09:55, 12:00 귀교 출발'),
+        h('li',null,'2부(초·중): 학교 출발 12:20~12:40, 미래봄 도착 12:50~13:00, 15:00 귀교 출발'),
+        h('li',null,'학교 소재지와 소요 시간은 확인 후 확정되며, 병설유치원은 해당 초등학교 차량을 탑니다. 학부모와 지역주민은 개별 차량으로 와서 미래봄 주차장을 이용해요.'))),
+    h('section',{class:'box'},h('h2',null,'행사장 안전 수칙'),
+      h('ul',null,
+        h('li',null,'계단에서는 뛰지 않고 난간을 잡고 한 줄로 천천히 이동해요. 엘리베이터는 유아와 몸이 불편한 친구가 먼저예요.'),
+        h('li',null,'드론 비행 구역, 마리오카트 주행 구역, 전기시설 안으로 들어가지 않아요.'),
+        h('li',null,'중정 출입구 앞에 머무르지 않아요.'),
+        h('li',null,'몸이 아프면 인솔교사에게 알리고 로비 안전보건부스나 1층 보건·휴게실에서 도움을 받아요.'),
+        h('li',null,'행사 장면은 홍보 목적으로 촬영될 수 있어요. 원하지 않으면 인솔교사에게 알려 주세요.'))),
+    h('section',{class:'box'},h('h2',null,'비가 오거나 바람이 강할 때'),
+      h('ul',null,
+        h('li',null,'11. 3.(화) 15:00에 1차 판단, 11. 4.(수) 07:30에 최종 판단해요.'),
+        h('li',null,'비: 야외·중정 부스는 텐트 안에서 운영하고, 인생네컷처럼 전자기기를 쓰는 부스는 실내로 옮겨요. 세팍타크로는 줄이거나 취소해요.'),
+        h('li',null,'순간풍속 10m/s 이상 예보: 텐트를 걷고 핵심 부스만 실내로 옮기며, 역도와 교통안전은 취소해요.'))),
+    h('section',{class:'box full'},h('h2',null,'준비 일정'),
+      h('ul',null,
+        h('li',null,'10월 2주: 부스 운영 신청서 접수 마감'),
+        h('li',null,'10월 3주: 부스 확정 명단 안내, 참가 학교 신청과 실별 예약, 수송 희망 인원 파악'),
+        h('li',null,'10월 4주: 학교별 배차 안내, 초대장 발송'),
+        h('li',null,'11. 3.(화): 부스 설치와 안전 점검, 11. 4.(수): 행사')))));
+}
+
+/* ---------- apply ---------- */
+function startReserve(pid){
+  showTab('apply',true);
+  const p=progById(pid);
+  if(p.kind==='lecture'&&!$('input[name=part]:checked',$('#appform')))setPart(String(p.part));
+  let row=$$('.rzrow',$('#rzrows')).find(r=>!$('.rzp',r).value);
+  if(!row){addRezRow();row=$$('.rzrow',$('#rzrows')).pop()}
+  const sel=$('.rzp',row); sel.value=pid; fillSess(row);
+  row.scrollIntoView({block:'center'});
+  $('.rzs',row).focus();
+}
+function setPart(v){
+  const r=$$('input[name=part]').find(x=>x.value===v); if(r){r.checked=true; onPartChange()}
+}
+function curPart(){const r=$('input[name=part]:checked');return r?r.value:''}
+function onPartChange(){
+  $$('.rzrow').forEach(fillProgOptions);
+  $$('.rzrow').forEach(fillSess);
+  updateTransportHint();
+}
+function fillProgOptions(row){
+  const part=curPart(), sel=$('.rzp',row), keep=sel.value;
+  clear(sel);
+  sel.append(h('option',{value:''},'프로그램 선택'));
+  const og1=h('optgroup',{label:'회차 예약 부스'}), og2=h('optgroup',{label:'소통 프로그램'});
+  PROGS.forEach(p=>{
+    const ok=!part||p.kind==='round'||String(p.part)===part;
+    const o=h('option',{value:p.id,disabled:!ok},p.name+(p.kind==='lecture'?' ('+p.part+'부 '+p.time+')':'')+(ok?'':' · 해당 부 없음'));
+    (p.kind==='lecture'?og2:og1).append(o);
+  });
+  sel.append(og1,og2);
+  sel.value=keep&&!sel.querySelector('option[value="'+keep+'"]')?.disabled?keep:'';
+}
+function fillSess(row){
+  const pid=$('.rzp',row).value, part=curPart(), sel=$('.rzs',row), keep=sel.value;
+  clear(sel);
+  if(!pid){sel.append(h('option',{value:''},'먼저 프로그램을 골라 주세요'));return}
+  sel.append(h('option',{value:''},'회차 선택'));
+  SESS.filter(s=>s.pid===pid&&(!part||String(s.part)===part)).forEach(s=>{
+    const r=remain(s);
+    sel.append(h('option',{value:s.id,disabled:r<=0},sessLabel(s).replace(/^\d부 /,'')+' · '+(r>0?'잔여 '+r+'/'+s.cap:'마감')));
+  });
+  if(keep&&sel.querySelector('option[value="'+keep+'"]')&&!sel.querySelector('option[value="'+keep+'"]').disabled)sel.value=keep;
+}
+function addRezRow(){
+  const row=h('div',{class:'row rzrow'},
+    h('select',{class:'rzp','aria-label':'프로그램',onchange:e=>fillSess(row)}),
+    h('select',{class:'rzs','aria-label':'회차'}),
+    h('input',{type:'text',class:'rzc',placeholder:'학급','aria-label':'학급'}),
+    h('input',{type:'number',class:'rzn',min:'1',placeholder:'인원','aria-label':'인원'}),
+    h('span',null),
+    h('button',{type:'button',class:'x','aria-label':'이 줄 삭제',onclick:()=>row.remove()},'×'));
+  $('#rzrows').append(row);
+  fillProgOptions(row); fillSess(row);
+}
+function addGradeRow(){
+  const row=h('div',{class:'row g grow'},
+    h('select',{class:'gg','aria-label':'학년'},h('option',{value:''},'학년'),
+      ['유치원','초1','초2','초3','초4','초5','초6','중1','중2','중3','고1','고2','고3'].map(x=>h('option',{value:x},x))),
+    h('input',{type:'number',class:'gn',min:'0',placeholder:'학생 수','aria-label':'참가 학생 수',oninput:sumGrades}),
+    h('input',{type:'number',class:'gt',min:'0',placeholder:'인솔교사','aria-label':'인솔교사 수',oninput:sumGrades}),
+    h('input',{type:'text',class:'gm',placeholder:'비고','aria-label':'비고'}),
+    h('button',{type:'button',class:'x','aria-label':'이 줄 삭제',onclick:()=>{row.remove();sumGrades()}},'×'));
+  $('#grows').append(row);
+}
+function sumGrades(){
+  let n=0,t=0;
+  $$('.grow').forEach(r=>{n+=+$('.gn',r).value||0;t+=+$('.gt',r).value||0});
+  $('#gsum').textContent='합계 학생 '+n+'명 · 인솔교사 '+t+'명';
+  const tn=$('#tn'); if(tn&&!tn.dataset.touched)tn.value=n+t||'';
+}
+function regionOfSchool(name){
+  const s=name.trim().replace(/\s/g,'').replace('초등학교','초').replace('중학교','중').replace('여자중','여중');
+  for(const k in SCHOOLS)if(SCHOOLS[k].includes(s))return k;
+  return '';
+}
+function updateTransportHint(){
+  const r=$('#tr').value, part=curPart(), el=$('#thint');
+  if(!r||!part){el.textContent='권역을 고르면 학교 출발 시각이 보여요.';return}
+  el.textContent=part==='1'?'1부 차량: 학교 출발 09:10~09:30, 12:00 귀교 출발. 학교별 배차표는 10월 4주에 안내해요.':'2부 차량: 학교 출발 12:20~12:40, 15:00 귀교 출발. 학교별 배차표는 10월 4주에 안내해요.';
+}
+function field(id,label,attrs,ctl){
+  return h('label',{class:'f',for:id},label,ctl||h('input',Object.assign({id},attrs)));
+}
+function buildApply(){
+  const root=$('#p-apply'); clear(root);
+  const dl=h('datalist',{id:'schools'},Object.values(SCHOOLS).flat().map(s=>h('option',{value:s})));
+  const form=h('form',{id:'appform',class:'form',novalidate:true,onsubmit:submitApp},
+    h('div',{id:'errs',tabindex:'-1','aria-live':'assertive'}),
+    h('fieldset',null,h('legend',null,'1. 학교와 담당자'),
+      h('div',{class:'fgrid'},
+        h('label',{class:'f',for:'school'},'학교명',h('input',{id:'school',type:'text',list:'schools',autocomplete:'off',placeholder:'예: 서천초',oninput:e=>{const r=regionOfSchool(e.target.value);if(r&&!$('#tr').dataset.touched){$('#tr').value=r;updateTransportHint()}}}),dl),
+        field('teacher','담당교사',{type:'text',autocomplete:'off',placeholder:'이름'}),
+        field('phone','연락처',{type:'tel',inputmode:'tel',placeholder:'010-0000-0000'})),
+      h('div',{style:'margin-top:12px'},h('span',{class:'hint',style:'margin:0'},'참가 구분'),
+        h('div',{class:'radios'},
+          h('label',null,h('input',{type:'radio',name:'part',value:'1',onchange:onPartChange}),'1부 (유치원·초등 10:00~12:00)'),
+          h('label',null,h('input',{type:'radio',name:'part',value:'2',onchange:onPartChange}),'2부 (중·고 13:00~15:00)')))),
+    h('fieldset',null,h('legend',null,'2. 참가 인원'),
+      h('div',{class:'rows',id:'grows'}),
+      h('div',{style:'display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:10px'},
+        h('button',{type:'button',class:'btn ghost small',onclick:addGradeRow},'+ 학년 추가'),
+        h('span',{id:'gsum',class:'hint',style:'margin:0'}))),
+    h('fieldset',null,h('legend',null,'3. 수송'),
+      h('div',{class:'radios'},
+        h('label',null,h('input',{type:'radio',name:'tm',value:'joint',checked:true}),'공동 수송'),
+        h('label',null,h('input',{type:'radio',name:'tm',value:'self'}),'학교 자체')),
+      h('div',{class:'fgrid',style:'margin-top:10px'},
+        h('label',{class:'f',for:'tr'},'권역',h('select',{id:'tr',onchange:e=>{e.target.dataset.touched='1';updateTransportHint()}},
+          h('option',{value:''},'선택'),Object.keys(REGIONS).map(k=>h('option',{value:k},k+'권역 · '+REGIONS[k].area)))),
+        h('label',{class:'f',for:'tn'},'수송 인원(명)',h('input',{id:'tn',type:'number',min:'0',oninput:e=>{e.target.dataset.touched='1'}}))),
+      h('p',{class:'hint',id:'thint'})),
+    h('fieldset',null,h('legend',null,'4. 회차 예약'),
+      h('p',{class:'hint',style:'margin:0 0 6px'},'2층 실, 예약제 부스, 강연을 신청해요. 한 줄에 프로그램 하나, 회차 하나예요. 1층 자유 참관 부스는 신청하지 않아도 돼요.'),
+      h('div',{class:'rows',id:'rzrows'}),
+      h('div',{style:'margin-top:10px'},h('button',{type:'button',class:'btn ghost small',onclick:addRezRow},'+ 예약 줄 추가'))),
+    h('fieldset',null,h('legend',null,'5. 특이 사항'),
+      h('div',{class:'fgrid'},
+        field('sp','장애 학생·보조 필요 여부',{type:'text',placeholder:'없으면 비워 두세요'}),
+        field('lift','엘리베이터 이용 필요 인원(명)',{type:'number',min:'0'}))),
+    h('div',null,h('button',{type:'submit',class:'btn'},'신청하기'),
+      h('p',{class:'hint'},'신청 후 받는 접수번호와 연락처 뒤 4자리로 \'예약 조회·취소\'에서 확인하고 바꿀 수 있어요.')));
+  root.append(h('div',{id:'applydone'}),form);
+  addGradeRow(); addRezRow(); sumGrades(); updateTransportHint();
+}
+function submitApp(e){
+  e.preventDefault();
+  const errs=[];
+  const get=id=>$('#'+id).value.trim();
+  const school=get('school'),teacher=get('teacher'),phone=get('phone'),part=curPart();
+  if(!school)errs.push(['school','학교명을 입력해 주세요.']);
+  if(!teacher)errs.push(['teacher','담당교사 이름을 입력해 주세요.']);
+  if(phone.replace(/\D/g,'').length<9)errs.push(['phone','연락처를 숫자 9자리 이상으로 입력해 주세요.']);
+  if(!part)errs.push(['school','참가 구분(1부 또는 2부)을 골라 주세요.']);
+  const grades=$$('.grow').map(r=>({g:$('.gg',r).value,n:+$('.gn',r).value||0,t:+$('.gt',r).value||0,memo:$('.gm',r).value.trim()})).filter(g=>g.g||g.n||g.t);
+  if(!grades.length||grades.some(g=>!g.g||g.n<1))errs.push(['grows','학년과 학생 수를 1명 이상으로 입력해 주세요.']);
+  const method=$('input[name=tm]:checked').value, region=$('#tr').value, tn=+$('#tn').value||0;
+  if(method==='joint'&&!region)errs.push(['tr','공동 수송은 권역을 골라 주세요.']);
+  const rez=[], need={};
+  $$('.rzrow').forEach(r=>{
+    const sid=$('.rzs',r).value,pid=$('.rzp',r).value,cls=$('.rzc',r).value.trim(),n=+$('.rzn',r).value||0;
+    if(!pid&&!sid&&!cls&&!n)return;
+    if(!sid){errs.push(['rzrows','예약 줄에서 프로그램과 회차를 모두 골라 주세요.']);return}
+    if(n<1){errs.push(['rzrows',sessLabel(sessById(sid))+' 예약의 인원을 입력해 주세요.']);return}
+    need[sid]=(need[sid]||0)+n;
+    rez.push({sid,cls,n,off:false});
+  });
+  for(const sid in need){const s=sessById(sid);if(need[sid]>remain(s))errs.push(['rzrows',progById(s.pid).name+' '+sessLabel(s)+'은 잔여 '+remain(s)+'명이라 '+need[sid]+'명을 신청할 수 없어요.'])}
+  const box=$('#errs'); clear(box);
+  if(errs.length){
+    box.className='errs';
+    box.append(h('strong',null,'다시 확인해 주세요 ('+errs.length+')'),h('ul',null,errs.map(x=>h('li',null,h('button',{type:'button',onclick:()=>{const t=$('#'+x[0]);t.scrollIntoView({block:'center'});(t.matches('input,select')?t:t.querySelector('input,select'))?.focus()}},x[1])))));
+    box.focus(); box.scrollIntoView({block:'center'});
+    return;
+  }
+  box.className='';
+  const a={no:'SC-'+String(apps.length+1).padStart(4,'0'),school,teacher,phone,part,grades,
+    transport:{method,region,n:tn},rez,special:{note:get('sp'),lift:+$('#lift').value||0},off:false};
+  apps.push(a);
+  const done=$('#applydone'); clear(done);
+  done.append(h('div',{class:'done',role:'status'},
+    h('h2',null,'신청이 접수되었어요'),
+    h('p',{style:'margin:6px 0 2px;color:var(--muted);font-size:13px'},'접수번호'),
+    h('div',{class:'num'},a.no),
+    h('p',{class:'hint'},'연락처 뒤 4자리('+phone.replace(/\D/g,'').slice(-4)+')와 함께 조회할 수 있어요. 번호를 꼭 적어 두세요.'),
+    appTable(a,false),
+    h('div',{style:'display:flex;gap:8px;flex-wrap:wrap;margin-top:12px'},
+      h('button',{class:'btn small',onclick:e=>copyText(a.no,e.currentTarget)},'접수번호 복사'),
+      h('button',{class:'btn ghost small',onclick:()=>{showTab('lookup',true);$('#lq').value=a.no;$('#lp').value=phone.replace(/\D/g,'').slice(-4);doLookup()}},'예약 조회로 이동'))));
+  done.scrollIntoView({block:'start'});
+  buildApplyFormReset();
+}
+function buildApplyFormReset(){
+  const done=$('#applydone').innerHTML;
+  const keep=$('#applydone').firstChild;
+  buildApply();
+  if(keep)$('#applydone').append(keep);
+}
+function copyText(t,btn){
+  const ok=()=>{const o=btn.textContent;btn.textContent='복사했어요';setTimeout(()=>btn.textContent=o,1600)};
+  try{navigator.clipboard.writeText(t).then(ok,()=>{btn.textContent=t})}catch(e){btn.textContent=t}
+}
+
+/* ---------- lookup ---------- */
+function appTable(a,editable){
+  const wrap=h('div',null);
+  const pn=a.part==='1'?'1부 (유치원·초등)':'2부 (중·고)';
+  const tr=a.transport.method==='joint'?'공동 수송'+(a.transport.region?' · '+a.transport.region+'권역':'')+(a.transport.n?' · '+a.transport.n+'명':''):'학교 자체'+(a.transport.n?' · '+a.transport.n+'명':'');
+  wrap.append(h('div',{class:'tablewrap',style:'margin-top:10px'},h('table',null,h('tbody',null,
+    h('tr',null,h('th',null,'참가'),h('td',null,pn+' · 학생 '+a.grades.reduce((s,g)=>s+g.n,0)+'명 · 인솔교사 '+a.grades.reduce((s,g)=>s+g.t,0)+'명 ('+a.grades.map(g=>g.g+' '+g.n).join(', ')+')')),
+    h('tr',null,h('th',null,'수송'),h('td',null,tr)),
+    a.special.note||a.special.lift?h('tr',null,h('th',null,'특이 사항'),h('td',null,[a.special.note,a.special.lift?'엘리베이터 '+a.special.lift+'명':''].filter(Boolean).join(' · '))):null))));
+  if(a.rez.length){
+    wrap.append(h('div',{class:'tablewrap'},h('table',null,
+      h('thead',null,h('tr',null,['프로그램','회차','학급','인원',editable?'':null].map(x=>x===null?null:h('th',null,x)))),
+      h('tbody',null,a.rez.map((r,i)=>{
+        const s=sessById(r.sid),p=progById(s.pid);
+        return h('tr',{class:r.off?'cancelled':''},
+          h('td',null,p.name),h('td',{class:'t'},sessLabel(s)),h('td',null,r.cls||'-'),h('td',null,r.n+'명'),
+          editable?h('td',null,r.off?h('span',{class:'pill'},'취소됨'):cancelCtl('r'+a.no+i,'이 예약 취소',()=>{r.off=true;doLookup(true)})):null);
+      })))));
+  }else wrap.append(h('p',{class:'hint'},'신청한 회차 예약이 없어요. 1층 부스는 자유 참관이에요.'));
+  return wrap;
+}
+let confirming=null;
+function cancelCtl(key,label,fn){
+  if(confirming===key)return h('span',{class:'confirm'},'정말 취소할까요?',
+    h('button',{class:'btn danger small',onclick:()=>{confirming=null;fn()}},'취소하기'),
+    h('button',{class:'btn ghost small',onclick:()=>{confirming=null;doLookup(true)}},'돌아가기'));
+  return h('button',{class:'btn ghost small',onclick:()=>{confirming=key;doLookup(true)}},label);
+}
+function buildLookup(){
+  const root=$('#p-lookup'); clear(root);
+  root.append(
+    h('form',{class:'box',style:'max-width:820px',onsubmit:e=>{e.preventDefault();confirming=null;doLookup()}},
+      h('h2',null,'신청 내역 조회'),
+      h('div',{class:'inline'},
+        h('label',{class:'f',for:'lq'},'접수번호 또는 학교명',h('input',{id:'lq',type:'text',autocomplete:'off',placeholder:'SC-0001'})),
+        h('label',{class:'f',for:'lp'},'연락처 뒤 4자리',h('input',{id:'lp',type:'text',inputmode:'numeric',maxlength:'4',placeholder:'1234'})),
+        h('button',{class:'btn',type:'submit'},'조회')),
+      h('p',{class:'hint'},'시안에 들어 있는 예시 신청을 보려면 접수번호 SC-0001, 뒤 4자리 1234를 입력해 보세요.')),
+    h('div',{id:'lres','aria-live':'polite'}));
+}
+function doLookup(keep){
+  const q=$('#lq').value.trim().toLowerCase(), ph=$('#lp').value.trim(), box=$('#lres');
+  clear(box);
+  if(!q||ph.length!==4){
+    box.append(h('div',{class:'empty',style:'margin-top:14px'},'접수번호(또는 학교명)와 연락처 뒤 4자리를 모두 입력해 주세요.'));return;
+  }
+  const hits=apps.filter(a=>(a.no.toLowerCase()===q||a.school.toLowerCase().includes(q))&&a.phone.replace(/\D/g,'').endsWith(ph));
+  if(!hits.length){
+    box.append(h('div',{class:'empty',style:'margin-top:14px'},'일치하는 신청이 없어요. 접수번호와 연락처 뒤 4자리를 다시 확인해 주세요.'));return;
+  }
+  hits.forEach(a=>{
+    const active=!a.off&&a.rez.some(r=>!r.off);
+    box.append(h('article',{class:'app'},
+      h('header',null,h('strong',null,a.school),h('span',{class:'num',style:'font-size:18px'},a.no),
+        h('span',{class:'st'+(a.off?' off':'')},a.off?'전체 취소':'접수됨'),
+        a.sample?h('span',{class:'pill'},'예시 데이터'):null,
+        h('span',{class:'hint',style:'margin:0'},'담당 '+a.teacher)),
+      appTable(a,!a.off),
+      !a.off?h('div',{style:'margin-top:12px'},cancelCtl('all'+a.no,'신청 전체 취소',()=>{a.off=true;a.rez.forEach(r=>r.off=true);doLookup(true)})):null));
+  });
+}
+
+/* ---------- init ---------- */
+function init(){
+  dday(); buildTabs(); renderPass(); buildFind(); buildGuide(); buildLookup(); buildApply();
+  let t='find'; try{t=location.hash.slice(1)||'find'}catch(e){}
+  showTab(t,false);
+}
+init();
+})();
+</script>
